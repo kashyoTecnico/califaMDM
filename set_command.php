@@ -1,41 +1,34 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header_remove();
 header("Content-Type: application/json; charset=utf-8");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("X-Content-Type-Options: nosniff");
 
 require "config.php";
 
-$token = $_GET["token"] ?? "";
-$sign  = $_GET["sign"] ?? "";
+$token = $_POST["token"] ?? "";
+$cmd   = $_POST["cmd"] ?? "";
 
-// 🔐 validar token
-if (!hash_equals(MDM_TOKEN, $token)) {
+$allowed = [
+    "DNS_LOCK","DNS_UNLOCK",
+    "WIFI_LOCK","WIFI_UNLOCK",
+    "FR_LOCK","FR_UNLOCK",
+    "UNLOCK","REBOOT",
+    "DEV_TEMP_ON","DEV_TEMP_OFF"
+];
+
+if ($token !== MDM_TOKEN) {
     http_response_code(403);
-    echo json_encode(["error" => "invalid token"]);
+    echo json_encode(["error"=>"invalid token"]);
     exit;
 }
 
-// 🔐 validar firma
-$expected = hash("sha256", MDM_TOKEN . MDM_SECRET);
-if (!hash_equals($expected, $sign)) {
-    http_response_code(403);
-    echo json_encode(["error" => "invalid sign"]);
+if (!in_array($cmd, $allowed)) {
+    http_response_code(400);
+    echo json_encode(["error"=>"invalid command"]);
     exit;
 }
 
-// 📦 si no hay comando
-if (!file_exists(CMD_FILE)) {
-    echo json_encode([
-        "command"   => "NONE",
-        "timestamp" => time()
-    ]);
-    exit;
-}
+file_put_contents(CMD_FILE, json_encode([
+    "command"   => $cmd,
+    "timestamp" => time()
+]));
 
-// 📤 devolver comando
-$cmd = file_get_contents(CMD_FILE);
-echo $cmd;
+echo json_encode(["status"=>"ok","cmd"=>$cmd]);
