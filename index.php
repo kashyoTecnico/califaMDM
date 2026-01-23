@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 header_remove();
 header("Content-Type: application/json; charset=utf-8");
 header("Cache-Control: no-store, no-cache, must-revalidate");
@@ -13,7 +10,7 @@ $token = $_GET["token"] ?? "";
 $sign  = $_GET["sign"] ?? "";
 
 // 🔐 validar token
-if (!hash_equals(MDM_TOKEN, $token)) {
+if ($token !== MDM_TOKEN) {
     http_response_code(403);
     echo json_encode(["error" => "invalid token"]);
     exit;
@@ -30,12 +27,11 @@ if (!hash_equals($expected, $sign)) {
 // 📦 si no hay comando
 if (!file_exists(CMD_FILE)) {
     echo json_encode([
-        "command"   => "NONE",
+        "command" => "NONE",
         "timestamp" => time()
     ]);
     exit;
 }
 
 // 📤 devolver comando
-$cmd = file_get_contents(CMD_FILE);
-echo $cmd;
+readfile(CMD_FILE);
