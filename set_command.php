@@ -9,7 +9,7 @@ $cmd   = $_POST["cmd"] ?? "";
 $allowed = [
     "DNS_LOCK","DNS_UNLOCK",
     "WIFI_LOCK","WIFI_UNLOCK",
-    "FR_LOCK","FR_UNLOCK",
+    "FR_LOCK","FR_UNLOCK","LOCK",
     "UNLOCK","REBOOT",
     "DEV_TEMP_ON","DEV_TEMP_OFF"
 ];
