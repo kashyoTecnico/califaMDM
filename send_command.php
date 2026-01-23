@@ -12,6 +12,7 @@ $allowed = [
     "FR_LOCK",
     "FR_UNLOCK",
     "UNLOCK",
+    "LOCK",
     "REBOOT",
     "DEV_TEMP_ON",
     "DEV_TEMP_OFF"
