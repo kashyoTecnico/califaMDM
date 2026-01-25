@@ -1,6 +1,18 @@
 <?php
-define("MDM_TOKEN", "7429");
-define("MDM_SECRET", "CALIFA_MDM_7429");
+header("Content-Type: application/json");
+require "config.php";
 
-define("CMD_FILE", __DIR__."/command.json");
-define("STATUS_FILE", __DIR__."/status.json");
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (($input["token"] ?? "") !== MDM_TOKEN) {
+    echo json_encode(["error"=>"invalid token"]); exit;
+}
+
+file_put_contents(STATUS_FILE, json_encode([
+  "device_time" => time(),
+  "command" => $input["command"] ?? "",
+  "result" => $input["result"] ?? "",
+  "detail" => $input["detail"] ?? ""
+], JSON_PRETTY_PRINT));
+
+echo json_encode(["status"=>"reported"]);
