@@ -1,11 +1,6 @@
 <?php
-// =======================
-// CONFIGURACIÓN MDM
-// =======================
-
 define("MDM_TOKEN", "7429");
 define("MDM_SECRET", "CALIFA_MDM_7429");
 
-// archivo donde se guarda el comando
-define("CMD_FILE", __DIR__ . "/commands.json");
+define("CMD_FILE", __DIR__."/command.json");
 define("STATUS_FILE", __DIR__."/status.json");
