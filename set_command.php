@@ -32,10 +32,14 @@ if (!in_array($cmd, $allowed)) {
 
 file_put_contents(CMD_FILE, json_encode([
     "cmd" => $cmd,
-    "ts"  => time()
+    "ts"  => time(),        
+    "command" => $cmd,
+    "timestamp" => time(),
+    "status" => "SENT"
 ]));
 
 echo json_encode([
     "status" => "ok",
-    "cmd" => $cmd
+    "cmd" => $cmd,
+    "message"=>"Comando enviado, esperando ejecución"
 ]);
