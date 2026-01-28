@@ -1,51 +1,38 @@
 <?php
-// ============================
-// HEARTBEAT MDM CALIFA
-// ============================
-
 require "config.php";
-header("Content-Type: application/json; charset=utf-8");
+header("Content-Type: application/json");
 
-// Datos recibidos del dispositivo
 $token  = $_POST["token"]  ?? "";
-$device = $_POST["device"] ?? "";
+$device = $_POST["device"] ?? "unknown";
 $model  = $_POST["model"]  ?? "unknown";
 $android= $_POST["android"]?? "unknown";
 
-// Validación básica
-if ($token !== MDM_TOKEN || empty($device)) {
+if ($token !== MDM_TOKEN) {
     http_response_code(403);
-    echo json_encode(["error" => "invalid token or device"]);
+    echo json_encode(["error"=>"invalid token"]);
     exit;
 }
 
-// Archivo donde se guardan los dispositivos
-$devicesFile = __DIR__ . "/devices.json";
-
-// Cargar dispositivos existentes
 $devices = [];
-if (file_exists($devicesFile)) {
-    $json = file_get_contents($devicesFile);
-    $devices = json_decode($json, true) ?: [];
+
+if (file_exists(DEVICES_FILE)) {
+    $devices = json_decode(file_get_contents(DEVICES_FILE), true);
+    if (!is_array($devices)) $devices = [];
 }
 
-// Actualizar / registrar dispositivo
 $devices[$device] = [
-    "device_id" => $device,
-    "model"     => $model,
-    "android"   => $android,
-    "last_seen" => time()
+    "device"   => $device,
+    "model"    => $model,
+    "android"  => $android,
+    "lastSeen" => time()
 ];
 
-// Guardar
 file_put_contents(
-    $devicesFile,
-    json_encode($devices, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+    DEVICES_FILE,
+    json_encode($devices, JSON_PRETTY_PRINT)
 );
 
-// Respuesta
 echo json_encode([
     "status" => "ok",
-    "device" => $device,
-    "time"   => time()
+    "device" => $device
 ]);
