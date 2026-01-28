@@ -1,22 +1,21 @@
 <?php
-header("Content-Type: application/json");
 require "config.php";
 
 $token = $_GET["token"] ?? "";
 $sign  = $_GET["sign"] ?? "";
+$device= $_GET["device"] ?? "";
 
-if ($token !== MDM_TOKEN) {
-    echo json_encode(["error"=>"invalid token"]); exit;
+if ($token !== MDM_TOKEN ||
+    hash("sha256",MDM_TOKEN.MDM_SECRET)!==$sign
+) {
+ echo json_encode(["error"=>"auth"]); exit;
 }
 
-$expected = hash("sha256", MDM_TOKEN.MDM_SECRET);
-if (!hash_equals($expected, $sign)) {
-    echo json_encode(["error"=>"invalid sign"]); exit;
+$file = CMD_DIR."/$device.json";
+
+if (!file_exists($file)) {
+ echo json_encode(["command"=>"NONE","timestamp"=>time()]);
+ exit;
 }
 
-if (!file_exists(CMD_FILE)) {
-    echo json_encode(["command"=>"NONE","timestamp"=>time()]);
-    exit;
-}
-
-readfile(CMD_FILE);
+readfile($file);
