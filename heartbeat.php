@@ -1,32 +1,26 @@
 <?php
 require "config.php";
+header("Content-Type: application/json");
 
-$token  = $_POST["token"] ?? "";
-$device = $_POST["device"] ?? "";
-$status = $_POST["status"] ?? "UNKNOWN";
-$model  = $_POST["model"] ?? "ANDROID";
+$token   = $_POST["token"] ?? "";
+$device  = $_POST["device"] ?? "";
+$model   = $_POST["model"] ?? "unknown";
+$version = $_POST["android"] ?? "unknown";
 
 if ($token !== MDM_TOKEN || !$device) {
     http_response_code(403);
     exit;
 }
 
-$data = file_exists(DATA_FILE)
-    ? json_decode(file_get_contents(DATA_FILE), true)
-    : [];
+$file = __DIR__ . "/devices.json";
+$data = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
 
-if (!isset($data[$device])) {
-    $data[$device] = [
-        "model" => $model,
-        "pending_cmd" => "NONE",
-        "cmd_ts" => 0,
-        "last_result" => "—"
-    ];
-}
+$data[$device] = [
+    "model"      => $model,
+    "android"    => $version,
+    "last_seen"  => time()
+];
 
-$data[$device]["last_seen"] = time();
-$data[$device]["status"]    = $status;
+file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
 
-file_put_contents(DATA_FILE, json_encode($data, JSON_PRETTY_PRINT));
-
-echo json_encode(["ok"=>true]);
+echo json_encode(["ok" => true]);
