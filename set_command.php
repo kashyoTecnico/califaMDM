@@ -1,37 +1,29 @@
 <?php
-header("Content-Type: application/json");
 require "config.php";
 
 $token = $_POST["token"] ?? "";
 $cmd   = $_POST["cmd"] ?? "";
+$device= $_POST["device"] ?? "broadcast";
 
 $allowed = [
-  "DNS_LOCK","DNS_UNLOCK",
-  "WIFI_LOCK","WIFI_UNLOCK",
-  "FR_LOCK","FR_UNLOCK",
-  "LOCK","UNLOCK",
-  "REBOOT",
-  "DEV_TEMP_ON","DEV_TEMP_OFF"
+ "LOCK","UNLOCK","REBOOT",
+ "WIFI_LOCK","WIFI_UNLOCK",
+ "DNS_LOCK","DNS_UNLOCK",
+ "FR_LOCK","FR_UNLOCK",
+ "DEV_TEMP_ON","DEV_TEMP_OFF"
 ];
 
-if ($token !== MDM_TOKEN) {
-    echo json_encode(["error"=>"invalid token"]); exit;
+if ($token !== MDM_TOKEN || !in_array($cmd,$allowed)) {
+ http_response_code(403); exit;
 }
 
-if (!in_array($cmd, $allowed)) {
-    echo json_encode(["error"=>"invalid command"]); exit;
-}
-
-$data = [
-  "command" => $cmd,
-  "timestamp" => time(),
-  "status" => "SENT"
-];
-
-file_put_contents(CMD_FILE, json_encode($data, JSON_PRETTY_PRINT));
+file_put_contents(
+ CMD_DIR."/$device.json",
+ json_encode(["command"=>$cmd,"timestamp"=>time()])
+);
 
 echo json_encode([
-  "status"=>"ok",
-  "cmd"=>$cmd,
-  "message"=>"Comando enviado, esperando ejecución"
+ "status"=>"ok",
+ "cmd"=>$cmd,
+ "message"=>"Comando enviado"
 ]);
