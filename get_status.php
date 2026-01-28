@@ -1,13 +1,9 @@
 <?php
-header("Content-Type: application/json");
-require "config.php";
+$devices=[];
 
-if (!file_exists(STATUS_FILE)) {
-    echo json_encode([
-        "status" => "NO_REPORT",
-        "message" => "El dispositivo aún no ha reportado"
-    ]);
-    exit;
+foreach (glob("status/*.json") as $f) {
+ $id=basename($f,".json");
+ $devices[$id]=json_decode(file_get_contents($f),true);
 }
 
-readfile(STATUS_FILE);
+echo json_encode($devices,JSON_PRETTY_PRINT);
